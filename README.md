@@ -1,7 +1,13 @@
-# TorBox Downloader
+<p align="center">
+  <img src="build/icon.png" width="128" alt="TorBox Downloader icon" />
+</p>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-![Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey)
+<h1 align="center">TorBox Downloader</h1>
+
+<p align="center">
+<a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" /></a>
+<img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey" alt="Platforms" />
+</p>
 
 Desktop app to search movies (TMDB), find torrents (Torrentio), and download them
 through TorBox's debrid service. Built with **Electron + React + TypeScript + Tailwind**.
