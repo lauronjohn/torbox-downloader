@@ -7,7 +7,7 @@ import { join } from 'path'
 import sharp from 'sharp'
 import pngToIco from 'png-to-ico'
 
-const SOURCE = '/Users/johnlauron/Downloads/图片信息.png'
+const SOURCE = '/Users/johnlauron/Downloads/图片信息-removebg-preview-2.png'
 const BUILD_DIR = new URL('../build', import.meta.url).pathname
 const ICON_SIZES = [16, 24, 32, 48, 64, 128, 256, 512, 1024]
 
