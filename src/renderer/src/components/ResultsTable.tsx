@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { Quality, StreamResult } from '@shared/types'
 import { useAppStore } from '../store/appStore'
 import { formatBytes } from '../lib/format'
@@ -17,6 +18,25 @@ function QualityBadge({ quality }: { quality: Quality }) {
     >
       {quality}
     </span>
+  )
+}
+
+function MoviePoster({ src }: { src: string | null }) {
+  const [failed, setFailed] = useState(false)
+  if (!src || failed) {
+    return (
+      <div className="flex h-16 w-11 shrink-0 items-center justify-center rounded bg-neutral-800 text-neutral-600">
+        🎬
+      </div>
+    )
+  }
+  return (
+    <img
+      src={src}
+      alt=""
+      onError={() => setFailed(true)}
+      className="h-16 w-11 shrink-0 rounded object-cover"
+    />
   )
 }
 
@@ -125,17 +145,7 @@ export function ResultsTable() {
             onClick={() => void selectMovie(movie)}
             className="flex w-full items-center gap-3 rounded-lg border border-neutral-800 bg-neutral-900/50 p-2 text-left transition-colors hover:border-neutral-700 hover:bg-neutral-900"
           >
-            {movie.posterPath ? (
-              <img
-                src={movie.posterPath}
-                alt=""
-                className="h-16 w-11 shrink-0 rounded object-cover"
-              />
-            ) : (
-              <div className="flex h-16 w-11 shrink-0 items-center justify-center rounded bg-neutral-800 text-neutral-600">
-                🎬
-              </div>
-            )}
+            <MoviePoster src={movie.posterPath} />
             <div className="min-w-0">
               <div className="font-medium text-neutral-100">
                 {movie.title}
