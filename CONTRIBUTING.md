@@ -10,8 +10,8 @@ npm install
 npm run dev          # launches the app with hot reload
 ```
 
-Paste your own TMDB + TorBox keys into Settings on first launch (see the main
-[README](README.md) for where to get them).
+Paste your own TorBox key into Settings on first launch (see the main
+[README](README.md) for where to get one) — movie search needs no key at all.
 
 ## Before opening a PR
 

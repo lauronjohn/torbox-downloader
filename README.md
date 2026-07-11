@@ -19,6 +19,18 @@ through TorBox's debrid service. Built with **Electron + React + TypeScript + Ta
 All network, disk, and secret handling runs in the Electron **main process** (Node),
 so there are no CORS issues and no API keys ever reach the renderer.
 
+## Features
+
+- Movie search (via Cinemeta) with debounced input — no metadata API key needed
+- Instant-download (⚡) badge for torrents TorBox already has cached
+- One-click add to TorBox with a season-pack-aware file picker, so the actual
+  movie downloads instead of a sample or subtitle file
+- Live progress, speed, and ETA for every download
+- Download history that persists across app restarts
+- Cancel, retry, reveal-in-Finder, and open-file actions on any download
+- Desktop notification when a download finishes
+- Configurable download folder and concurrent-download limit
+
 ## Download
 
 Prebuilt binaries are attached to the [Releases](../../releases) page:
