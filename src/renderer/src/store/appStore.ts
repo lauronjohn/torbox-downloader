@@ -58,7 +58,9 @@ export const useAppStore = create<AppState>((set, get) => ({
   error: null,
 
   setView: (view) => set({ view }),
-  setQuery: (query) => set({ query }),
+  // Typing a new query always means "search again" — drop back out of a
+  // selected movie's streams view so the (soon-to-arrive) results are visible.
+  setQuery: (query) => set({ query, selectedMovie: null, streams: [] }),
   clearError: () => set({ error: null }),
 
   loadSettings: async () => {

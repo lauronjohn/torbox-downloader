@@ -4,6 +4,7 @@ import { useSearch } from '../hooks/useSearch'
 export function SearchBar() {
   const query = useAppStore((s) => s.query)
   const setQuery = useAppStore((s) => s.setQuery)
+  const search = useAppStore((s) => s.search)
   const searching = useAppStore((s) => s.searching)
   const selectedMovie = useAppStore((s) => s.selectedMovie)
   const backToMovies = useAppStore((s) => s.backToMovies)
@@ -27,6 +28,10 @@ export function SearchBar() {
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => {
+            // Skip the debounce and search right away.
+            if (e.key === 'Enter') void search(query)
+          }}
           placeholder="Search movies…"
           className="w-full rounded-lg border border-neutral-800 bg-neutral-900 py-2.5 pl-10 pr-10 text-sm text-neutral-100 placeholder:text-neutral-500 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
         />

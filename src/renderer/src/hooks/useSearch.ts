@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useAppStore } from '../store/appStore'
 
-/** Debounces the query (350ms) to stay within TMDB's 40 req / 10s limit. */
+/** Debounces the query (350ms) so we're not searching on every keystroke. */
 export function useSearch(): void {
   const query = useAppStore((s) => s.query)
   const search = useAppStore((s) => s.search)
