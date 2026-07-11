@@ -8,7 +8,8 @@ const STATUS_LABEL: Record<DownloadStatus, string> = {
   processing: 'Processing on TorBox',
   downloading: 'Downloading',
   completed: 'Completed',
-  failed: 'Failed'
+  failed: 'Failed',
+  canceled: 'Canceled'
 }
 
 const STATUS_COLOR: Record<DownloadStatus, string> = {
@@ -17,19 +18,33 @@ const STATUS_COLOR: Record<DownloadStatus, string> = {
   processing: 'text-sky-300',
   downloading: 'text-brand-hover',
   completed: 'text-emerald-400',
-  failed: 'text-red-400'
+  failed: 'text-red-400',
+  canceled: 'text-neutral-400'
 }
 
-function BarColor(status: DownloadStatus): string {
+const ACTIVE: DownloadStatus[] = ['queued', 'adding', 'processing', 'downloading']
+
+function barColor(status: DownloadStatus): string {
   if (status === 'completed') return 'bg-emerald-500'
   if (status === 'failed') return 'bg-red-500'
+  if (status === 'canceled') return 'bg-neutral-600'
   return 'bg-brand'
 }
 
+const actionCls =
+  'rounded px-2 py-1 text-xs font-medium text-neutral-300 hover:bg-neutral-800 hover:text-neutral-100'
+
 function JobCard({ job }: { job: DownloadJob }) {
   const removeDownload = useAppStore((s) => s.removeDownload)
+  const cancelDownload = useAppStore((s) => s.cancelDownload)
+  const retryDownload = useAppStore((s) => s.retryDownload)
+  const revealDownload = useAppStore((s) => s.revealDownload)
+  const openDownload = useAppStore((s) => s.openDownload)
+
   const pct = Math.round(job.progress * 100)
+  const isActive = ACTIVE.includes(job.status)
   const indeterminate = job.status === 'adding' || job.status === 'processing'
+  const canRetry = job.status === 'failed' || job.status === 'canceled'
 
   return (
     <div className="rounded-lg border border-neutral-800 bg-neutral-900/60 p-3">
@@ -45,7 +60,7 @@ function JobCard({ job }: { job: DownloadJob }) {
         </div>
         <button
           onClick={() => void removeDownload(job.id)}
-          title="Remove"
+          title="Remove from list"
           className="shrink-0 rounded p-1 text-neutral-500 hover:bg-neutral-800 hover:text-neutral-200"
         >
           ✕
@@ -54,7 +69,7 @@ function JobCard({ job }: { job: DownloadJob }) {
 
       <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-neutral-800">
         <div
-          className={`h-full rounded-full transition-all ${BarColor(job.status)} ${
+          className={`h-full rounded-full transition-all ${barColor(job.status)} ${
             indeterminate ? 'animate-pulse' : ''
           }`}
           style={{ width: `${indeterminate && job.progress === 0 ? 100 : pct}%` }}
@@ -82,21 +97,59 @@ function JobCard({ job }: { job: DownloadJob }) {
       {job.status === 'failed' && job.error && (
         <p className="mt-1.5 text-xs text-red-400/80">{job.error}</p>
       )}
+
+      <div className="mt-2 flex justify-end gap-1">
+        {isActive && (
+          <button onClick={() => void cancelDownload(job.id)} className={actionCls}>
+            Cancel
+          </button>
+        )}
+        {canRetry && (
+          <button onClick={() => void retryDownload(job.id)} className={actionCls}>
+            Retry
+          </button>
+        )}
+        {job.status === 'completed' && (
+          <>
+            <button onClick={() => void openDownload(job.id)} className={actionCls}>
+              Open
+            </button>
+            <button onClick={() => void revealDownload(job.id)} className={actionCls}>
+              Reveal
+            </button>
+          </>
+        )}
+      </div>
     </div>
   )
 }
 
 export function DownloadQueue() {
   const downloads = useAppStore((s) => s.downloads)
+  const clearCompleted = useAppStore((s) => s.clearCompleted)
+
+  const hasFinished = downloads.some(
+    (j) => j.status === 'completed' || j.status === 'failed' || j.status === 'canceled'
+  )
 
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between border-b border-neutral-800 px-4 py-3">
-        <h2 className="text-sm font-semibold text-neutral-200">Downloads</h2>
-        {downloads.length > 0 && (
-          <span className="rounded-full bg-neutral-800 px-2 py-0.5 text-xs text-neutral-400">
-            {downloads.length}
-          </span>
+        <div className="flex items-center gap-2">
+          <h2 className="text-sm font-semibold text-neutral-200">Downloads</h2>
+          {downloads.length > 0 && (
+            <span className="rounded-full bg-neutral-800 px-2 py-0.5 text-xs text-neutral-400">
+              {downloads.length}
+            </span>
+          )}
+        </div>
+        {hasFinished && (
+          <button
+            onClick={() => void clearCompleted()}
+            className="rounded px-2 py-0.5 text-xs text-neutral-500 hover:bg-neutral-800 hover:text-neutral-200"
+          >
+            Clear finished
+          </button>
         )}
       </div>
       <div className="flex-1 space-y-2 overflow-y-auto p-3">

@@ -7,19 +7,16 @@ export function Settings() {
   const chooseDir = useAppStore((s) => s.chooseDir)
 
   const [torboxToken, setTorboxToken] = useState('')
-  const [tmdbKey, setTmdbKey] = useState('')
   const [concurrency, setConcurrency] = useState(settings?.concurrency ?? 3)
   const [saved, setSaved] = useState(false)
 
   const onSave = async (): Promise<void> => {
     await saveSettings({
-      // Only send keys the user actually typed; blank leaves the stored key intact.
+      // Only send the key if the user actually typed one; blank leaves the stored key intact.
       ...(torboxToken ? { torboxToken } : {}),
-      ...(tmdbKey ? { tmdbKey } : {}),
       concurrency
     })
     setTorboxToken('')
-    setTmdbKey('')
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
@@ -28,7 +25,8 @@ export function Settings() {
     <div className="mx-auto max-w-xl">
       <h2 className="mb-1 text-lg font-semibold text-neutral-100">Settings</h2>
       <p className="mb-6 text-sm text-neutral-500">
-        API keys are encrypted with your OS keychain and never leave this machine.
+        Your TorBox key is encrypted with your OS keychain and never leaves this machine.
+        Movie search uses Cinemeta and needs no key.
       </p>
 
       <div className="space-y-5">
@@ -42,20 +40,6 @@ export function Settings() {
             value={torboxToken}
             onChange={(e) => setTorboxToken(e.target.value)}
             placeholder={settings?.hasTorboxToken ? '••••••••••••' : 'Paste your TorBox token'}
-            className={inputCls}
-          />
-        </Field>
-
-        <Field
-          label="TMDB API key"
-          hint={settings?.hasTmdbKey ? 'A key is saved. Enter a new one to replace it.' : 'Required. Free from themoviedb.org.'}
-          saved={settings?.hasTmdbKey ?? false}
-        >
-          <input
-            type="password"
-            value={tmdbKey}
-            onChange={(e) => setTmdbKey(e.target.value)}
-            placeholder={settings?.hasTmdbKey ? '••••••••••••' : 'Paste your TMDB API key'}
             className={inputCls}
           />
         </Field>

@@ -5,7 +5,6 @@ type View = 'search' | 'settings'
 
 interface SaveInput {
   torboxToken?: string
-  tmdbKey?: string
   downloadDir?: string
   concurrency?: number
 }
@@ -33,6 +32,11 @@ interface AppState {
   backToMovies: () => void
   addDownload: (stream: StreamResult) => Promise<void>
   removeDownload: (id: string) => Promise<void>
+  cancelDownload: (id: string) => Promise<void>
+  retryDownload: (id: string) => Promise<void>
+  revealDownload: (id: string) => Promise<void>
+  openDownload: (id: string) => Promise<void>
+  clearCompleted: () => Promise<void>
   setDownloads: (jobs: DownloadJob[]) => void
 }
 
@@ -126,6 +130,46 @@ export const useAppStore = create<AppState>((set, get) => ({
   removeDownload: async (id) => {
     try {
       await window.api.removeDownload(id)
+    } catch (err) {
+      set({ error: message(err) })
+    }
+  },
+
+  cancelDownload: async (id) => {
+    try {
+      await window.api.cancelDownload(id)
+    } catch (err) {
+      set({ error: message(err) })
+    }
+  },
+
+  retryDownload: async (id) => {
+    try {
+      await window.api.retryDownload(id)
+    } catch (err) {
+      set({ error: message(err) })
+    }
+  },
+
+  revealDownload: async (id) => {
+    try {
+      await window.api.revealDownload(id)
+    } catch (err) {
+      set({ error: message(err) })
+    }
+  },
+
+  openDownload: async (id) => {
+    try {
+      await window.api.openDownload(id)
+    } catch (err) {
+      set({ error: message(err) })
+    }
+  },
+
+  clearCompleted: async () => {
+    try {
+      await window.api.clearCompleted()
     } catch (err) {
       set({ error: message(err) })
     }
