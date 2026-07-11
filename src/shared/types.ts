@@ -1,7 +1,8 @@
 // Types shared across the main, preload, and renderer processes.
 
 export interface MovieResult {
-  id: number
+  /** IMDb id (e.g. "tt1877830") — consumed directly by Torrentio. */
+  id: string
   title: string
   year: string | null
   posterPath: string | null
@@ -37,6 +38,7 @@ export type DownloadStatus =
   | 'downloading'
   | 'completed'
   | 'failed'
+  | 'canceled'
 
 export interface DownloadJob {
   id: string
@@ -57,14 +59,12 @@ export interface DownloadJob {
 
 export interface AppSettings {
   hasTorboxToken: boolean
-  hasTmdbKey: boolean
   downloadDir: string
   concurrency: number
 }
 
 export interface SettingsUpdate {
   torboxToken?: string
-  tmdbKey?: string
   downloadDir?: string
   concurrency?: number
 }
@@ -75,9 +75,14 @@ export interface Api {
   setSettings(update: SettingsUpdate): Promise<AppSettings>
   chooseDownloadDir(): Promise<string | null>
   searchMovies(query: string): Promise<MovieResult[]>
-  getStreams(tmdbId: number): Promise<StreamResult[]>
+  getStreams(imdbId: string): Promise<StreamResult[]>
   addDownload(stream: StreamResult): Promise<DownloadJob>
   listDownloads(): Promise<DownloadJob[]>
   removeDownload(id: string): Promise<void>
+  cancelDownload(id: string): Promise<void>
+  retryDownload(id: string): Promise<void>
+  revealDownload(id: string): Promise<void>
+  openDownload(id: string): Promise<void>
+  clearCompleted(): Promise<void>
   onDownloadsUpdate(cb: (jobs: DownloadJob[]) => void): () => void
 }

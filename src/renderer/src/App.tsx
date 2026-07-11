@@ -20,14 +20,14 @@ export default function App() {
     void loadSettings()
   }, [loadSettings])
 
-  // Nudge first-time users to Settings until both keys are present.
+  // Nudge first-time users to Settings until the TorBox key is present.
   useEffect(() => {
-    if (settings && (!settings.hasTmdbKey || !settings.hasTorboxToken)) {
+    if (settings && !settings.hasTorboxToken) {
       setView('settings')
     }
   }, [settings, setView])
 
-  const needsKeys = settings ? !settings.hasTmdbKey || !settings.hasTorboxToken : false
+  const needsKeys = settings ? !settings.hasTorboxToken : false
 
   return (
     <div className="flex h-screen flex-col bg-neutral-950 text-neutral-100">

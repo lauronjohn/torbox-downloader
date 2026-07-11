@@ -7,7 +7,6 @@ import type { AppSettings, SettingsUpdate } from '../shared/types'
 
 interface Persisted {
   torboxToken?: string // base64(encrypted) or plaintext fallback
-  tmdbKey?: string
   downloadDir?: string
   concurrency?: number
   encrypted?: boolean
@@ -56,11 +55,6 @@ export function getTorboxToken(): string | null {
   return decrypt(data.torboxToken, data.encrypted ?? false)
 }
 
-export function getTmdbKey(): string | null {
-  const data = read()
-  return decrypt(data.tmdbKey, data.encrypted ?? false)
-}
-
 export function getDownloadDir(): string {
   return read().downloadDir ?? app.getPath('downloads')
 }
@@ -74,7 +68,6 @@ export function getPublicSettings(): AppSettings {
   const data = read()
   return {
     hasTorboxToken: !!decrypt(data.torboxToken, data.encrypted ?? false),
-    hasTmdbKey: !!decrypt(data.tmdbKey, data.encrypted ?? false),
     downloadDir: data.downloadDir ?? app.getPath('downloads'),
     concurrency: data.concurrency && data.concurrency > 0 ? data.concurrency : 3
   }
@@ -82,22 +75,17 @@ export function getPublicSettings(): AppSettings {
 
 export function updateSettings(update: SettingsUpdate): AppSettings {
   const data = read()
-  // Re-encrypt everything under a single `encrypted` flag so old plaintext
-  // values are upgraded once safeStorage becomes available.
-  const secrets: { torboxToken?: string; tmdbKey?: string } = {
-    torboxToken: decrypt(data.torboxToken, data.encrypted ?? false) ?? undefined,
-    tmdbKey: decrypt(data.tmdbKey, data.encrypted ?? false) ?? undefined
-  }
-  if (update.torboxToken !== undefined) secrets.torboxToken = update.torboxToken.trim() || undefined
-  if (update.tmdbKey !== undefined) secrets.tmdbKey = update.tmdbKey.trim() || undefined
+  // Re-encrypt the token under a single `encrypted` flag so an old plaintext
+  // value is upgraded once safeStorage becomes available.
+  let torboxToken = decrypt(data.torboxToken, data.encrypted ?? false) ?? undefined
+  if (update.torboxToken !== undefined) torboxToken = update.torboxToken.trim() || undefined
 
   const next: Persisted = {
     downloadDir: update.downloadDir ?? data.downloadDir,
     concurrency: update.concurrency ?? data.concurrency,
     encrypted: safeStorage.isEncryptionAvailable()
   }
-  if (secrets.torboxToken) next.torboxToken = encrypt(secrets.torboxToken).stored
-  if (secrets.tmdbKey) next.tmdbKey = encrypt(secrets.tmdbKey).stored
+  if (torboxToken) next.torboxToken = encrypt(torboxToken).stored
 
   write(next)
   return getPublicSettings()

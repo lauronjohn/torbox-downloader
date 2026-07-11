@@ -9,10 +9,10 @@
 <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey" alt="Platforms" />
 </p>
 
-Desktop app to search movies (TMDB), find torrents (Torrentio), and download them
+Desktop app to search movies (Cinemeta), find torrents (Torrentio), and download them
 through TorBox's debrid service. Built with **Electron + React + TypeScript + Tailwind**.
 
-> Unofficial hobby project. Not affiliated with TorBox, TMDB, or Torrentio.
+> Unofficial hobby project. Not affiliated with TorBox, Stremio/Cinemeta, or Torrentio.
 > This is a general-purpose client — it doesn't host or index any content itself.
 > Use it only for content you have the legal right to download in your jurisdiction.
 
@@ -37,7 +37,9 @@ warning (only needed the first time).
 
 - Node.js 20+ (tested on 24)
 - A **TorBox** account + API key (paid) — <https://torbox.app>
-- A free **TMDB** API key — <https://www.themoviedb.org/settings/api>
+
+Movie search uses Stremio's free **Cinemeta** addon, so **no metadata API key is
+needed** — the TorBox key is the only thing you provide.
 
 ## Setup
 
@@ -46,8 +48,8 @@ npm install
 npm run dev        # launches the app with hot reload
 ```
 
-On first launch, open **Settings** and paste your TorBox + TMDB keys. They're
-encrypted with your OS keychain (Electron `safeStorage`) and stored locally.
+On first launch, open **Settings** and paste your TorBox key. It's encrypted with
+your OS keychain (Electron `safeStorage`) and stored locally.
 
 ## Scripts
 
@@ -62,15 +64,17 @@ encrypted with your OS keychain (Electron `safeStorage`) and stored locally.
 
 ## How it works
 
-1. **Search** → TMDB `/search/movie` (debounced 350 ms).
-2. **Pick a movie** → TMDB `/movie/{id}` returns its `imdb_id`.
-3. **Streams** → Torrentio `/stream/movie/{imdb}.json` (cached 1 h locally).
-4. **Cached badge** → batched TorBox `checkcached` marks instant torrents ⚡.
-5. **Download** → magnet (with trackers) → `createtorrent` → poll `mylist`
+1. **Search** → Cinemeta `catalog/movie/top/search=…json` (debounced 350 ms) —
+   returns IMDb ids + posters directly, no API key.
+2. **Streams** → Torrentio `/stream/movie/{imdb}.json` (cached 1 h locally).
+3. **Cached badge** → batched TorBox `checkcached` marks instant torrents ⚡.
+4. **Download** → magnet (with trackers) → `createtorrent` → poll `mylist`
    (3 s→10 s backoff) → pick the right file (`fileIdx` / largest video,
    validated against the actual file list so metadata/sample files are never
    mistaken for the movie) → fresh `requestdl` URL → streamed to disk with
    live progress/speed/ETA.
+5. **Manage** → the queue persists across restarts; downloads can be canceled,
+   retried, and revealed/opened, with a desktop notification on completion.
 
 ## Architecture
 
@@ -80,8 +84,9 @@ src/
 │   ├── index.ts   window + lifecycle
 │   ├── ipc.ts     IPC handlers + download pipeline
 │   ├── store.ts   safeStorage-encrypted settings
+│   ├── downloadsStore.ts  persisted queue/history
 │   ├── cache.ts   TTL cache
-│   └── services/  tmdb · torrentio · torbox · downloads
+│   └── services/  cinemeta · torrentio · torbox · downloads
 ├── preload/       contextBridge → typed window.api
 ├── shared/        types shared across processes
 └── renderer/      React UI (Zustand, Tailwind)
